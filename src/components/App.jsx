@@ -11,14 +11,28 @@ export default function App() {
   });
 
   const updateFeedback = (feedbackType) => {
-    setFeedback((prevFeedback) => ({
-      ...prevFeedback,
-      [feedbackType]: prevFeedback[feedbackType] + 1,
-    }));
+    setFeedback((prevFeedback) => {
+      const updatedFeedback = {
+        ...prevFeedback,
+        [feedbackType]: prevFeedback[feedbackType] + 1,
+      };
+      localStorage.setItem('feedback', JSON.stringify(updatedFeedback));
+      return updatedFeedback;
+    });
+  };
+
+  const resetFeedback = () => {
+    const resetFeedback = {
+      good: 0,
+      neutral: 0,
+      bad: 0,
+    };
+    setFeedback(resetFeedback);
+    localStorage.setItem('feedback', JSON.stringify(resetFeedback));
   };
 
   const totalFeedback = feedback.good + feedback.neutral + feedback.bad;
-  const positiveFeedback = Math.round((feedback.good / totalFeedback) * 100);
+  const positiveFeedback = totalFeedback > 0 ? Math.round((feedback.good / totalFeedback) * 100) : 0;
 
   useEffect(() => {
     const savedFeedback = JSON.parse(localStorage.getItem('feedback'));
@@ -26,10 +40,6 @@ export default function App() {
       setFeedback(savedFeedback);
     }
   }, []);
-
-  useEffect(() => {
-    localStorage.setItem('feedback', JSON.stringify(feedback));
-  }, [feedback]);
 
   return (
     <div className="App">
@@ -39,6 +49,7 @@ export default function App() {
         updateFeedback={updateFeedback}
         feedback={feedback}
         totalFeedback={totalFeedback}
+        resetFeedback={resetFeedback}
       />
       {totalFeedback > 0 ? (
         <Feedback
